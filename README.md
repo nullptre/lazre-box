@@ -1,6 +1,16 @@
 # Lazre RAG Chatbot
 
-_TODO explanations about how cool it is and its features_
+The chatbot is designed for seamless integration into various chat messengers (Telegram is supported now, other messngers will be supported soon). Its main features:
+
+- **Language-agnostic** – designed with non-English conversations in mind, while fully supporting English as well
+- **Highly optimized** for cost efficiency
+- It opens and reads **links and images** posted in chat
+- Includes built-in spam protection and prompt injection safeguards
+- **Strictly focused** – finds relevant information in the chat with no added bias or assumptions
+- Generates a weekly summary of recent discussions
+
+Technical notes:
+It’s built on LangChain and currently uses only the OpenAI LLM. However, the code is designed with easy integration in mind, so with some changes, it can work with local LLMs as well. Another extensibility feature is support for multiple messengers. Theoretically, it can run with any messenger. For link reading, it uses a headless browser and some smart DOM manipulations to extract the content. Image-to-text conversion is handled by an OpenAI model.
 
 
 # How to run the docker container
