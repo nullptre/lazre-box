@@ -172,3 +172,10 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+build_context/
+
+config*.json
+config*.json.*
+
+.workdir*/
