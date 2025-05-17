@@ -1,3 +1,7 @@
+# Lazre RAG Chatbot
+
+_TODO explanations about how cool it is and its features_
+
 
 # How to run the docker container
 
@@ -77,8 +81,11 @@ docker run -it `
 ### 2. Run health check and indexing
 
 a. Open your telegram bot (it will be your primary interface to work with all functions).
+
 b. Run health check by typing `/hc`. Then wait for the response and verify if it was successful.
+
 c. Run indexing by typing `/index_topics`.
+
    **WARNING** The initial indexing process may consume a significant amount of money on your OpenAI account! Please ensure you have set up usage limits in the OpenAI platform before proceeding.
    The indexing may take hours or even days depending on the amount of data in the chat history.
 
