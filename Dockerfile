@@ -1,7 +1,5 @@
-# Use Python 3.11 slim as base image
 FROM python:3.11-slim AS builder
 
-# Set working directory
 WORKDIR /build
 
 # Install system dependencies
@@ -10,36 +8,30 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create and activate virtual environment
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Install Python dependencies for all applications
-COPY lazre/requirements.txt /build/lazre-requirements.txt
-COPY bot915/requirements.txt /build/bot915-requirements.txt
-COPY taggregator/requirements.txt /build/taggregator-requirements.txt
-
-RUN pip install --no-cache-dir -r /build/lazre-requirements.txt && \
-    pip install --no-cache-dir -r /build/bot915-requirements.txt && \
-    pip install --no-cache-dir -r /build/taggregator-requirements.txt && \
-    pip install --no-cache-dir schedule
+# Lazre venv and dependencies
+COPY lazre/requirements.txt /build/lazre/requirements.txt
+RUN python -m venv /build/lazre/venv && \
+    /build/lazre/venv/bin/pip install --upgrade pip && \
+    /build/lazre/venv/bin/pip install --no-cache-dir -r /build/lazre/requirements.txt
 
 # Install NLTK data and Playwright for lazre
 COPY lazre/install_nltk.py /build/
-RUN python /build/install_nltk.py
-RUN playwright install && playwright install-deps
+RUN /build/lazre/venv/bin/python /build/install_nltk.py
+RUN /build/lazre/venv/bin/playwright install && /build/lazre/venv/bin/playwright install-deps
 
-# Final stage
+# Bot915 venv and dependencies
+COPY bot915/requirements.txt /build/bot915/requirements.txt
+RUN python -m venv /build/bot915/venv && \
+    /build/bot915/venv/bin/pip install --upgrade pip && \
+    /build/bot915/venv/bin/pip install --no-cache-dir -r /build/bot915/requirements.txt
+
+# Taggregator venv and dependencies
+COPY taggregator/requirements.txt /build/taggregator/requirements.txt
+RUN python -m venv /build/taggregator/venv && \
+    /build/taggregator/venv/bin/pip install --upgrade pip && \
+    /build/taggregator/venv/bin/pip install --no-cache-dir -r /build/taggregator/requirements.txt
+
 FROM python:3.11-slim
-
-# Copy virtual environment from builder
-COPY --from=builder /opt/venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser
@@ -58,7 +50,12 @@ COPY bot915 /app/bot915
 COPY taggregator /app/taggregator
 COPY scheduler.py /app/taggregator/scheduler.py
 
-# Copy and setup startup script
+# Copy venvs from builder into app folders
+COPY --from=builder /build/lazre/venv /app/lazre/venv
+COPY --from=builder /build/bot915/venv /app/bot915/venv
+COPY --from=builder /build/taggregator/venv /app/taggregator/venv
+
+# Copy start script
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
@@ -79,7 +76,12 @@ ENV BOT915_CONFIG_FILE_PATH=/var/lib/lazre/config/config_bot915.json
 ENV TAGGREGATOR_CONFIG_FILE_PATH=/var/lib/lazre/config/config_taggregator.json
 ENV LAZRE_CONFIG_FILE_PATH=/var/lib/lazre/config/config_lazre.json
 
-# Expose ports
+# Set environment variables for venvs in app folders, they will be used in the start.sh script
+ENV VENV_LAZRE_PATH=/app/lazre/venv
+ENV VENV_BOT915_PATH=/app/bot915/venv
+ENV VENV_TAGGREGATOR_PATH=/app/taggregator/venv
+
+# Expose ports if needed
 # EXPOSE 8083
 
 # Use the startup script as the entry point

@@ -17,7 +17,7 @@ cp -r ../taggregator build_context/taggregator
 cp .dockerignore build_context/
 
 # Build the Docker image
-docker build -t lazre-box -f Dockerfile build_context
+docker build --no-cache -t lazre-box -f Dockerfile build_context
 
 # Clean up build context
 rm -rf build_context 
