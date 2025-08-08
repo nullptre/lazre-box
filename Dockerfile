@@ -72,6 +72,7 @@ USER appuser
 ENV PYTHONUNBUFFERED=1
 ENV VECTORSTORE_DATA_DIRECTORY=/var/lib/lazre/chroma
 ENV TAGGREGATOR_DATA_DIRECTORY=/var/lib/lazre/taggregator
+ENV BOT915_EULA_USERS_FILE_PATH=/var/lib/lazre/users_settings/eula_users.json
 ENV MESSAGES_LOG_WORKDIR=/var/lib/lazre/taggregator
 ENV TMPDIR=/tmp/lazre
 ENV BOT915_CONFIG_FILE_PATH=/var/lib/lazre/config/config_bot915.json
