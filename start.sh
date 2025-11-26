@@ -31,4 +31,4 @@ $VENV_TAGGREGATOR_PATH/bin/python scheduler.py >> /var/lib/lazre/logs/taggregato
 # Start lazre in the foreground
 echo "Starting lazre server..."
 cd /app/lazre
-$VENV_LAZRE_PATH/bin/python server.py
+$VENV_LAZRE_PATH/bin/python server.py 2>&1 | tee -a /var/lib/lazre/logs/lazre/lazre.log
