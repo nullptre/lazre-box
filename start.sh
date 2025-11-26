@@ -3,6 +3,7 @@
 # Create log directories if they don't exist
 mkdir -p /var/lib/lazre/logs/bot915
 mkdir -p /var/lib/lazre/logs/taggregator
+mkdir -p /var/lib/lazre/logs/lazre
 
 # Run taggregator once in foreground for initial authentication and messages download
 echo "Running taggregator for initial authentication..."

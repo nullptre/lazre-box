@@ -1,4 +1,5 @@
-FROM python:3.11-slim AS builder
+# This python image is tested to work fine with Playwright
+FROM python:3.11.14-slim-bookworm AS builder
 
 WORKDIR /build
 
@@ -31,7 +32,8 @@ RUN python -m venv /build/taggregator/venv && \
     /build/taggregator/venv/bin/pip install --upgrade pip && \
     /build/taggregator/venv/bin/pip install --no-cache-dir -r /build/taggregator/requirements.txt
 
-FROM python:3.11-slim
+# This python image is tested to work fine with Playwright
+FROM python:3.11.14-slim-bookworm
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser
