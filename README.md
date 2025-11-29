@@ -68,7 +68,8 @@ When you run the container for the first time, you'll need to authenticate with 
 ```bash
 docker pull ghcr.io/nullptre/lazre-box:latest
 
-# '-it' is only needed for the first run, to set up the telegram client, then it's not required
+# '-it' is only needed for the first run, to set up the telegram client.
+# After the app is configured you better use `docker exec -d` command.
 docker run -it \
   -v ./.workdir:/var/lib/lazre \
   -v ./config:/var/lib/lazre/config \
@@ -81,7 +82,8 @@ docker run -it \
 ```powershell
 docker pull ghcr.io/nullptre/lazre-box:latest
 
-# '-it' is only needed for the first run, to set up the telegram client, then it's not required
+# '-it' is only needed for the first run, to set up the telegram client.
+# After the app is configured you better use `docker exec -d` command.
 docker run -it `
   -v .\.workdir:/var/lib/lazre `
   -v .\config:/var/lib/lazre/config `
