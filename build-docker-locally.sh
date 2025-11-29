@@ -10,6 +10,7 @@ cp -r ./* build_context/
 
 # Copy other repositories locally since they are external to this repository
 cp -r ../lazre build_context/lazre
+rm -rf build_context/lazre/.workdir* # Exclude .workdir, it's a large and not needed
 cp -r ../bot915 build_context/bot915
 cp -r ../taggregator build_context/taggregator
 
