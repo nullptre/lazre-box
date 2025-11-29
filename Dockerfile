@@ -1,7 +1,7 @@
 # This python image is tested to work fine with Playwright
-FROM python:3.11.14-slim-bookworm AS builder
+FROM python:3.11.14-slim-bookworm
 
-WORKDIR /build
+WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -9,63 +9,53 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Lazre venv and dependencies
-COPY lazre/requirements.txt /build/lazre/requirements.txt
-RUN python -m venv /build/lazre/venv && \
-    /build/lazre/venv/bin/pip install --upgrade pip && \
-    /build/lazre/venv/bin/pip install --no-cache-dir -r /build/lazre/requirements.txt
-
-# Install NLTK data and Playwright for lazre
-COPY lazre/install_nltk.py /build/
-RUN /build/lazre/venv/bin/python /build/install_nltk.py
-RUN /build/lazre/venv/bin/playwright install && /build/lazre/venv/bin/playwright install-deps
-
-# Bot915 venv and dependencies
-COPY bot915/requirements.txt /build/bot915/requirements.txt
-RUN python -m venv /build/bot915/venv && \
-    /build/bot915/venv/bin/pip install --upgrade pip && \
-    /build/bot915/venv/bin/pip install --no-cache-dir -r /build/bot915/requirements.txt
-
-# Taggregator venv and dependencies
-COPY taggregator/requirements.txt /build/taggregator/requirements.txt
-RUN python -m venv /build/taggregator/venv && \
-    /build/taggregator/venv/bin/pip install --upgrade pip && \
-    /build/taggregator/venv/bin/pip install --no-cache-dir -r /build/taggregator/requirements.txt
-
-# This python image is tested to work fine with Playwright
-FROM python:3.11.14-slim-bookworm
-
 # Create non-root user
 RUN useradd -m -u 1000 appuser
 
 # Create data and temp directories for all applications
+# NOTE: leave /tmp with default permissions (1777, root-owned) so system tools like apt can use it.
+# Use a dedicated subdirectory /tmp/lazre for our app's temporary files.
 RUN mkdir -p /var/lib/lazre && \
-    mkdir -p /tmp && \
-    chown -R appuser:appuser /var/lib/lazre && \
-    chown -R appuser:appuser /tmp && \
-    chmod -R 755 /var/lib/lazre && \
-    chmod -R 755 /tmp
+    mkdir -p /tmp/lazre && \
+    chown -R appuser:appuser /var/lib/lazre /tmp/lazre && \
+    chmod -R 755 /var/lib/lazre /tmp/lazre
 
 # Copy application code
 COPY lazre /app/lazre
 COPY bot915 /app/bot915
 COPY taggregator /app/taggregator
 COPY scheduler.py /app/taggregator/scheduler.py
+# ================== COPY lazre/install_nltk.py /app/lazre/install_nltk.py
 
-# Copy venvs from builder into app folders
-COPY --from=builder /build/lazre/venv /app/lazre/venv
-COPY --from=builder /build/bot915/venv /app/bot915/venv
-COPY --from=builder /build/taggregator/venv /app/taggregator/venv
+# Lazre venv and dependencies
+RUN python -m venv /app/lazre/venv && \
+    /app/lazre/venv/bin/pip install --upgrade pip && \
+    /app/lazre/venv/bin/pip install --no-cache-dir -r /app/lazre/requirements.txt
+
+# Bot915 venv and dependencies
+RUN python -m venv /app/bot915/venv && \
+    /app/bot915/venv/bin/pip install --upgrade pip && \
+    /app/bot915/venv/bin/pip install --no-cache-dir -r /app/bot915/requirements.txt
+
+# Taggregator venv and dependencies
+RUN python -m venv /app/taggregator/venv && \
+    /app/taggregator/venv/bin/pip install --upgrade pip && \
+    /app/taggregator/venv/bin/pip install --no-cache-dir -r /app/taggregator/requirements.txt
+
+# Lazre: Install Playwright system dependencies as root (this may use apt-get under the hood)
+RUN /app/lazre/venv/bin/playwright install-deps
 
 # Copy start script
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
-# Set working directory
-WORKDIR /app
-
 # Switch to non-root user
 USER appuser
+
+# Lazre: Install Playwright supported browsers for appuser
+RUN /app/lazre/venv/bin/playwright install
+# Lazre: Install NLTK data for appuser
+RUN /app/lazre/venv/bin/python /app/lazre/install_nltk.py
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
