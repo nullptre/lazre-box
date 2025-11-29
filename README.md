@@ -73,6 +73,7 @@ docker run -it \
   -v ./.workdir:/var/lib/lazre \
   -v ./config:/var/lib/lazre/config \
   --env-file .env \
+  --restart always \
   ghcr.io/nullptre/lazre-box:latest
 ```
 
@@ -85,6 +86,7 @@ docker run -it `
   -v .\.workdir:/var/lib/lazre `
   -v .\config:/var/lib/lazre/config `
   --env-file .env `
+  --restart always `
   ghcr.io/nullptre/lazre-box:latest
 ```
 
