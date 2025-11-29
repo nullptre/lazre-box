@@ -1,4 +1,4 @@
-# This python image is tested to work fine with Playwright
+# This base image is tested to work fine with Playwright:
 FROM python:3.11.14-slim-bookworm
 
 WORKDIR /app
@@ -25,7 +25,6 @@ COPY lazre /app/lazre
 COPY bot915 /app/bot915
 COPY taggregator /app/taggregator
 COPY scheduler.py /app/taggregator/scheduler.py
-# ================== COPY lazre/install_nltk.py /app/lazre/install_nltk.py
 
 # Lazre venv and dependencies
 RUN python -m venv /app/lazre/venv && \
