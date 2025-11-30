@@ -393,8 +393,8 @@ resource "aws_ecs_task_definition" "indexer" {
       image     = "ghcr.io/nullptre/lazre-box:latest"
       essential = true
 
-      # Run the standalone indexing script.
-      command = ["python", "lazre/util_index_topics.py"]
+      # Run the standalone indexing script via dedicated startup script.
+      command = ["/app/start_indexing.sh"]
 
       logConfiguration = {
         logDriver = "awslogs"

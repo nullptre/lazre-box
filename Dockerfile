@@ -44,9 +44,10 @@ RUN python -m venv /app/taggregator/venv && \
 # Lazre: Install Playwright system dependencies as root (this may use apt-get under the hood)
 RUN /app/lazre/venv/bin/playwright install-deps
 
-# Copy start script
+# Copy start scripts
 COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+COPY start_indexing.sh /app/start_indexing.sh
+RUN chmod +x /app/start.sh /app/start_indexing.sh
 
 # Switch to non-root user
 USER appuser
