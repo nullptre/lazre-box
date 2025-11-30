@@ -71,6 +71,7 @@ docker pull ghcr.io/nullptre/lazre-box:latest
 # '-it' is only needed for the first run, to set up the telegram client.
 # After the app is configured you better use `docker exec -d` command.
 docker run -it \
+  --name lazre-box-container \
   -v ./.workdir:/var/lib/lazre \
   -v ./config:/var/lib/lazre/config \
   --env-file .env \
@@ -85,6 +86,7 @@ docker pull ghcr.io/nullptre/lazre-box:latest
 # '-it' is only needed for the first run, to set up the telegram client.
 # After the app is configured you better use `docker exec -d` command.
 docker run -it `
+  --name lazre-box-container `
   -v .\.workdir:/var/lib/lazre `
   -v .\config:/var/lib/lazre/config `
   --env-file .env `
