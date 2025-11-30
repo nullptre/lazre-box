@@ -1,0 +1,65 @@
+# Example Terraform variable values for Lazre AWS deployment
+#
+# Copy this file to `terraform.tfvars` and edit the values before running:
+#   terraform init
+#   terraform apply
+
+# -----------------------------
+# bot_desired_count
+# -----------------------------
+# Number of bot tasks the ECS service should keep running.
+# Recommended flow:
+#   - First step: set to 0, so the bot does NOT start with empty configuration.
+#   - Then you create necessary config files in EFS: upload .env and config files.
+#   - Finally set bot_desired_count to 1 and run `terraform apply` again to start the bot.
+#
+# You can also temporarily scale the bot down later by setting this back to 0.
+bot_desired_count = 0
+
+# -----------------------------
+# project_prefix
+# -----------------------------
+# Short identifier used as a prefix when naming AWS resources created by this
+# Terraform configuration (ECS cluster, log groups, security groups, etc.).
+# Change this if you want to run multiple independent Lazre deployments in
+# the same AWS account (each with its own prefix).
+project_prefix = "remont_pl_lazre"
+
+# -----------------------------
+# efs_root_directory
+# -----------------------------
+# Logical root directory on the EFS file system for this deployment.
+# Inside the container, EFS is mounted at /var/lib/lazre, so the bot and
+# indexer will see:
+#   /var/lib/lazre/.env           -> stored at <EFS root><efs_root_directory>/.env
+#   /var/lib/lazre/config/*.json  -> stored at <EFS root><efs_root_directory>/config
+#
+# If you add a second Lazre deployment in the future, give it a different
+# efs_root_directory (for example, "/another_instance_data").
+efs_root_directory = "/remont_pl_data"
+
+# -----------------------------
+# helper_ssh_key_name
+# -----------------------------
+# Name of an existing EC2 key pair in eu-central-1. Terraform will attach this
+# key pair to the helper EC2 instance so that you can SSH into it from your
+# laptop and manage the contents of the EFS file system (upload .env and
+# config files, inspect data, etc.).
+#
+# Create this key pair in the AWS Console (EC2 -> Key pairs) before running
+# `terraform apply`, download the .pem file, and set its name here.
+helper_ssh_key_name = "remont-pl-helper-key"
+
+# -----------------------------
+# helper_ssh_cidr
+# -----------------------------
+# CIDR range allowed to SSH (port 22) into the helper EC2 instance.
+# Use your current public IP with /32, for example:
+#   "83.24.12.45/32"
+#
+# If your IP changes in the future, update this value and run `terraform apply`
+# again so the security group rule is updated.
+helper_ssh_cidr = "83.24.12.45/32"
+
+
+
