@@ -92,6 +92,15 @@ docker run -it `
   ghcr.io/nullptre/lazre-box:latest
 ```
 
+#### Memory limits
+During runtime, the container may consume a significant amount of memory, especially during indexing. If it reaches a predefined limit, Docker Desktop will stop (or restart) the container automatically.
+To avoid that, you can: 1) increase the system limit in Docker Desktop settings, and 2) set a cache size limit in the application by adding this parameter:
+```
+-e TOPICS_CACHE_SIZE_LIMIT=60000
+```
+Here, 60000 roughly corresponds to 3 GB. You will need to find the optimal value by monitoring container memory consumption. When `TOPICS_CACHE_SIZE_LIMIT` is not set, the cache size is unlimited.
+Warning: The smaller the cache size, the slower the indexing time.
+
 ### 2. Run health check and indexing
 
 a. Open your telegram bot (it will be your primary interface to work with all functions).
