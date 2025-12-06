@@ -18,6 +18,9 @@ import schedule
 class LazreChatConfig:
     chat_day_start: str
     enable_shcheduled_indexing: bool = True
+    # Optional: chat identifier used by Lazre; when available, we forward it
+    # to the Lazre API when triggering indexing.
+    chat_id: str | None = None
 
 
 @dataclass
@@ -61,6 +64,7 @@ def load_lazre_config(config_path: str) -> LazreConfig:
             enable_shcheduled_indexing=bool(
                 item.get("enable_shcheduled_indexing", True)
             ),
+            chat_id=str(item.get("chat_id")) if item.get("chat_id") is not None else None,
         )
         chats.append(chat_config)
 
@@ -122,13 +126,39 @@ def call_index_topics_endpoint() -> None:
     base_url = get_lazre_base_url().rstrip("/")
     url = f"{base_url}/api/index-topics"
 
-    request = urllib.request.Request(url=url, method="POST")
+    # The Lazre /api/index-topics endpoint expects a JSON body with at least
+    # a chat_id field. The actual indexing routine currently runs for all
+    # chats, but chat_id is still required by the API schema.
+    #
+    # We resolve the Lazre config again here to get the scheduler chat entry
+    # and reuse its chat_id when available. If it is missing for any reason,
+    # we fall back to an empty string, which is still accepted by the server.
+    try:
+        lazre_config_path = get_lazre_config_path()
+        lazre_config = load_lazre_config(lazre_config_path)
+        scheduler_chat_config = get_scheduler_chat_config(lazre_config)
+        chat_id = (scheduler_chat_config.chat_id or "").strip()
+    except Exception:
+        # If anything goes wrong while resolving config, still attempt to call
+        # the endpoint with a dummy chat_id so that indexing can proceed.
+        chat_id = ""
+
+    payload = {"chat_id": chat_id}
+    data = json.dumps(payload).encode("utf-8")
+
+    request = urllib.request.Request(
+        url=url,
+        data=data,
+        method="POST",
+        headers={"Content-Type": "application/json"},
+    )
 
     try:
-        print(f"SCHEDULED JOB: Calling index topics endpoint: {url}")
-        # We intentionally send an empty POST body; the Lazre server is expected
-        # to use its own configuration and state for indexing.
-        with urllib.request.urlopen(request, data=b"") as response:
+        print(
+            "SCHEDULED JOB: Calling index topics endpoint: "
+            f"{url} with payload: {payload}"
+        )
+        with urllib.request.urlopen(request) as response:
             status_code = response.getcode()
             print(f"Index topics endpoint responded with status code {status_code}.")
     except urllib.error.HTTPError as http_error:
