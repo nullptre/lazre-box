@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -124,7 +125,7 @@ def call_index_topics_endpoint() -> None:
     request = urllib.request.Request(url=url, method="POST")
 
     try:
-        print(f"Calling index topics endpoint: {url}")
+        print(f"SCHEDULED JOB: Calling index topics endpoint: {url}")
         # We intentionally send an empty POST body; the Lazre server is expected
         # to use its own configuration and state for indexing.
         with urllib.request.urlopen(request, data=b"") as response:
@@ -143,10 +144,12 @@ def run_taggregator() -> None:
     """
     Run taggregator main process once.
     """
-    # Get current environment and ensure it's passed to the child process
+    # Get current environment and ensure it's passed to the child process.
+    # Use the same Python interpreter that is running this scheduler
+    # (i.e., the taggregator venv Python inside Docker).
     env = os.environ.copy()
-    print(f"Running taggregator: {env}")
-    subprocess.run(["python", "main.py"], env=env)
+    print("SCHEDULED JOB: Running taggregator.")
+    subprocess.run([sys.executable, "main.py"], env=env)
 
 
 def setup_schedules() -> None:
@@ -156,7 +159,7 @@ def setup_schedules() -> None:
     print("Configuring taggregator scheduler tasks.")
 
     # Schedule taggregator to run every 10 minutes.
-    schedule.every(10).minutes.do(run_taggregator)
+    schedule.every(30).minutes.do(run_taggregator)
 
     # Load Lazre configuration and schedule the daily indexing job.
     lazre_config_path = get_lazre_config_path()
