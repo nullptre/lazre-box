@@ -7,7 +7,7 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 import schedule
@@ -181,7 +181,7 @@ def run_scheduler_loop() -> None:
     """
     Run the scheduler loop indefinitely.
     """
-    print("Starting taggregator scheduler loop.")
+    print("Starting taggregator scheduler loop. Current UTC time:", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"))
     while True:
         schedule.run_pending()
         time.sleep(60)

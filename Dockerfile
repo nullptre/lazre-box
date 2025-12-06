@@ -57,6 +57,8 @@ RUN /app/lazre/venv/bin/playwright install
 RUN /app/lazre/venv/bin/python /app/lazre/install_nltk.py
 
 # Set environment variables
+# Use UTC inside the container so all scheduler times are interpreted as UTC.
+ENV TZ=UTC
 ENV PYTHONUNBUFFERED=1
 ENV VECTORSTORE_DATA_DIRECTORY=/var/lib/lazre/chroma
 ENV TAGGREGATOR_DATA_DIRECTORY=/var/lib/lazre/taggregator
