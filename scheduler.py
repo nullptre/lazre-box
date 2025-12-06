@@ -143,7 +143,7 @@ def call_index_topics_endpoint() -> None:
         # the endpoint with a dummy chat_id so that indexing can proceed.
         chat_id = ""
 
-    payload = {"chat_id": chat_id}
+    payload = {"chat_id": chat_id, "date_of_interest": None}
     data = json.dumps(payload).encode("utf-8")
 
     request = urllib.request.Request(
@@ -155,7 +155,7 @@ def call_index_topics_endpoint() -> None:
 
     try:
         print(
-            "SCHEDULED JOB: Calling index topics endpoint: "
+            f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} SCHEDULED JOB: Calling index topics endpoint: "
             f"{url} with payload: {payload}"
         )
         with urllib.request.urlopen(request) as response:
@@ -178,7 +178,7 @@ def run_taggregator() -> None:
     # Use the same Python interpreter that is running this scheduler
     # (i.e., the taggregator venv Python inside Docker).
     env = os.environ.copy()
-    print("SCHEDULED JOB: Running taggregator.")
+    print(f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} SCHEDULED JOB: Running taggregator.")
     subprocess.run([sys.executable, "main.py"], env=env)
 
 
