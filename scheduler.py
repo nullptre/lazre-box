@@ -8,7 +8,7 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import List
 
 import schedule
@@ -85,9 +85,10 @@ def get_scheduler_chat_config(config: LazreConfig) -> LazreChatConfig:
     return config.chats[0]
 
 
-def parse_chat_day_start(chat_day_start: str) -> str:
+def get_index_time(chat_day_start: str, offset_hours: int = 1) -> str:
     """
-    Validate and normalize the chat_day_start time string.
+    Validate and normalize the chat_day_start time string, and apply the
+    scheduler's 1-hour offset.
 
     Returns the time string in HH:MM:SS format, which is accepted by the
     schedule library.
@@ -105,7 +106,10 @@ def parse_chat_day_start(chat_day_start: str) -> str:
             "Expected format is HH:MM:SS."
         ) from exc
 
-    return parsed_time.strftime("%H:%M:%S")
+    # Apply a fixed +1 hour offset for the indexing job. Wrapping over
+    # midnight is fine: e.g., 23:30:00 + 1h -> 00:30:00.
+    parsed_time_with_offset = parsed_time + timedelta(hours=offset_hours)
+    return parsed_time_with_offset.strftime("%H:%M:%S")
 
 
 def get_lazre_base_url() -> str:
@@ -188,14 +192,17 @@ def setup_schedules() -> None:
     """
     print("Configuring taggregator scheduler tasks.")
 
-    # Schedule taggregator to run every 10 minutes.
-    schedule.every(30).minutes.do(run_taggregator)
+    # ====== Schedule taggregator to run every N minutes.
+    schedule.every(15).minutes.do(run_taggregator)
 
-    # Load Lazre configuration and schedule the daily indexing job.
+    # ====== Load Lazre configuration and schedule the daily indexing job.
     lazre_config_path = get_lazre_config_path()
     lazre_config = load_lazre_config(lazre_config_path)
     scheduler_chat_config = get_scheduler_chat_config(lazre_config)
-    index_time = parse_chat_day_start(scheduler_chat_config.chat_day_start)
+    # Use chat_day_start plus a fixed 1-hour offset for the index-topics job.
+    # The 1-hour offset is needed to allow the taggregator to run BEFORE the indexing job starts,
+    # otherwise the indexing will fail with "Outdated messages log" error.
+    index_time = get_index_time(scheduler_chat_config.chat_day_start, offset_hours=1)
 
     if not scheduler_chat_config.enable_shcheduled_indexing:
         print(
