@@ -36,6 +36,10 @@ RUN python -m venv /app/bot915/venv && \
     /app/bot915/venv/bin/pip install --upgrade pip && \
     /app/bot915/venv/bin/pip install --no-cache-dir -r /app/bot915/requirements.txt
 
+# Add dependency to requirements.txt which is required for the scheduler.py file
+RUN echo "# this is required to run scheduler.py" >> /app/taggregator/requirements.txt && \
+    echo "schedule==1.2.1" >> /app/taggregator/requirements.txt
+
 # Taggregator venv and dependencies
 RUN python -m venv /app/taggregator/venv && \
     /app/taggregator/venv/bin/pip install --upgrade pip && \
