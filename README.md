@@ -119,7 +119,55 @@ c. Run indexing by typing `/index_topics`.
 Once indexing is finished you can use the chatbot.
 You should periodically run `/index_topics` command manually that will incrementally index latest chat messages. Recommended: once per several days.
 
+### 4. Update container with new release
 
+To update to the latest version of the container:
+
+#### Linux/macOS
+
+1. **Stop and remove the existing container and image in one go**:
+
+```bash
+docker stop lazre-box-container 2>/dev/null || true && \
+docker rm lazre-box-container 2>/dev/null || true && \
+docker rmi ghcr.io/nullptre/lazre-box:latest 2>/dev/null || true
+```
+
+2. **Start the container again**:
+
+```bash
+# '-it' is not needed since the app is already set up
+docker run -d \
+  --name lazre-box-container \
+  -v ./.workdir:/var/lib/lazre \
+  -v ./config:/var/lib/lazre/config \
+  --env-file .env \
+  --restart always \
+  ghcr.io/nullptre/lazre-box:latest
+```
+
+#### Windows (PowerShell)
+
+1. **Stop and remove the existing container and image in one go**:
+
+```powershell
+docker stop lazre-box-container 2>$null; `
+docker rm lazre-box-container 2>$null; `
+docker rmi ghcr.io/nullptre/lazre-box:latest 2>$null
+```
+
+2. **Start the container again**:
+
+```powershell
+# '-it' is not needed since the app is already set up
+docker run -d `
+  --name lazre-box-container `
+  -v .\.workdir:/var/lib/lazre `
+  -v .\config:/var/lib/lazre/config `
+  --env-file .env `
+  --restart always `
+  ghcr.io/nullptre/lazre-box:latest
+```
 
 # How to build the Image
 
