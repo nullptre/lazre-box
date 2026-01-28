@@ -95,7 +95,8 @@ docker run -it `
 ```
 
 #### Memory limits
-During runtime, the container may consume a significant amount of memory, especially during indexing. If it reaches a predefined limit, Docker Desktop will stop (or restart) the container automatically.
+During runtime, the container may consume an increased amount of memory, especially during indexing. Typical tests show around 0.6Gb usage in Q&A cycles and 3Gb when indexing, but it highly depends on the data volume in the chat.
+In rare cases with large data volumes the container may reach a predefined limit in the Docker Desktop, then it will stop (or restart) the container automatically.
 To avoid that, you can: 1) increase the system limit in Docker Desktop settings, and 2) set a cache size limit in the application by adding this parameter:
 ```
 -e TOPICS_CACHE_SIZE_LIMIT=60000
