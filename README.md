@@ -126,7 +126,12 @@ To update to the latest version of the container:
 
 #### Linux/macOS
 
-1. **Stop and remove the existing container and image in one go**:
+1. **Open the chatbot folder**
+
+Open your chatbot folder. You should see `config` and `.workdir` inside it.
+Then start `Terminal` from that folder.
+
+2. **Stop and remove the existing container and image in one go**:
 
 ```bash
 docker stop lazre-box-container 2>/dev/null || true && \
@@ -134,7 +139,7 @@ docker rm lazre-box-container 2>/dev/null || true && \
 docker rmi ghcr.io/nullptre/lazre-box:latest 2>/dev/null || true
 ```
 
-2. **Start the container again**:
+3. **Start the container again**:
 
 ```bash
 # '-it' is not needed since the app is already set up
@@ -147,9 +152,18 @@ docker run -d \
   ghcr.io/nullptre/lazre-box:latest
 ```
 
+4. **Wait for the image download and container startup**
+
+The image download may take a while.
+
 #### Windows (PowerShell)
 
-1. **Stop and remove the existing container and image in one go**:
+1. **Open the chatbot folder**
+
+Open your chatbot folder. You should see `config` and `.workdir` inside it.
+Then start `PowerShell` from that folder.
+
+2. **Stop and remove the existing container and image in one go**:
 
 ```powershell
 docker stop lazre-box-container 2>$null; `
@@ -157,7 +171,7 @@ docker rm lazre-box-container 2>$null; `
 docker rmi ghcr.io/nullptre/lazre-box:latest 2>$null
 ```
 
-2. **Start the container again**:
+3. **Start the container again**:
 
 ```powershell
 # '-it' is not needed since the app is already set up
@@ -169,6 +183,10 @@ docker run -d `
   --restart always `
   ghcr.io/nullptre/lazre-box:latest
 ```
+
+4. **Wait for the image download and container startup**
+
+The image download may take a while.
 
 # How to build the Image
 
